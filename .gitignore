@@ -1,0 +1,5 @@
+.*
+*.cfg
+!.gitignore
+bin/
+lib/
