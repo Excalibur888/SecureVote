@@ -1,22 +1,81 @@
 import piheaan as heaan
 import os
+import copy
+
+log_sots = 2
+
+class Voter:
+    def __init__(self, id: int, ballot):
+        self.id = id
+        self.ballot = ballot
 
 
-def add_vote():
+def print_candidates() -> int:
+    count = 0
+    for candidate in candidates:
+        print(str(count) + ". " + candidate)
+        count += 1
+    return count - 1
+
+
+def add_vote() -> Voter:
     while True:
-        id = input("Pleaser enter your id: ")
+        _id = input("Please enter your id: ")
         try:
-            val = int(id)
-            if val < 0:  # if not a positive int print message and ask for input again
-                print("Sorry, input must be a positive integer, try again")
+            id = int(_id)
+            if id < 0:
+                print("Sorry, your id cant be negative, try again\n")
                 continue
             break
         except ValueError:
-            print("That's not an int!")
+            print("That's not an id!\n")
+    print("")
+
+    while True:
+        # Print candidates and get the number of candidate
+        candidates_count = print_candidates()
+
+        # Initialise ballot
+        ballot = []
+        for i in range(candidates_count + 1):
+            ballot.append(int(0))
+
+        # User input for candidate
+        _vote = input("Please choose your candidate: ")
+        try:
+            vote = int(_vote)
+            if vote < 0 or vote > candidates_count:
+                print("Sorry, your number is not valid, try again\n")
+                continue
+            break
+        except ValueError:
+            print("That's not an number!\n")
+
+    # Flag the candidate in the ballot
+    ballot[vote] = 1
+
+    ballot_enc = heaan.Message(log_sots)
+    for i in range(len(ballot)):
+        ballot_enc[i] = int(ballot[i])
+
+    # encrypt m1 to ctxt1 using public_key
+    ctxt = heaan.Ciphertext(context)
+    enc.encrypt(ballot_enc, pk, ctxt)
+
+    return Voter(id, ctxt)
 
 
 def compute_votes():
-    pass
+    if len(votes) == 0:
+        return "No votes to compute\n"
+    result = heaan.Ciphertext(context)
+    result.log_slots = log_sots
+    for v in range(len(votes)):
+        eval.add(result, votes[v].ballot, result)
+    # if len(votes) - 1 == 0:
+    #    result = votes[0].ballot
+    return result
+
 
 # set parameter
 params = heaan.ParameterPreset.FGb
@@ -38,8 +97,21 @@ eval = heaan.HomEvaluator(context, pk)  # to load pi-heaan math
 dec = heaan.Decryptor(context)  # for decrypt
 enc = heaan.Encryptor(context)  # for encrypt
 
-log_sots = 15
-# if log_slots = 15 -> the number of slots per ciphertext is 2**15
-# log_slots is used for the number of slots per ciphertext
-# log_slots value depends on the parameter used. (ParameterPreset)
-# 15 is the value for maximum number of slots, but you can also use a smaller number. (ex. 3, 5)
+votes = []
+candidates = ["Lee Jae-myung", "Lee Nak-yeon", "Park Yong-jin", "Choo Mi-ae"]
+
+while True:
+    menu = input("1. Vote\n2. Results\n3. Exit\nPlease select one action: ")
+    menu = int(menu)
+    if menu == 1:
+        votes.append(add_vote())
+        print("Vote added !\n")
+        continue
+    if menu == 2:
+        print(compute_votes())
+        continue
+    if menu == 3:
+        exit()
+    if menu != 1 and menu != 2 and menu != 3:
+        print("Invalid option\n")
+        continue
