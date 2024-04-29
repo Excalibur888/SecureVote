@@ -4,6 +4,7 @@ import copy
 
 log_sots = 2
 
+
 class Voter:
     def __init__(self, id: int, ballot):
         self.id = id
@@ -18,7 +19,26 @@ def print_candidates() -> int:
     return count - 1
 
 
-def add_vote() -> Voter:
+def print_winner(result_enc):
+    if result_enc == -1:
+        return print("No votes to compute\n")
+    result = heaan.Message(log_sots)
+    dec.decrypt(result_enc, sk, result)
+    max_votes = max(result, key=abs)
+    max_votes_indexes = []
+    for i in range(len(result)):
+        if result[i] == max_votes:
+            max_votes_indexes.append(int(i))
+    if len(max_votes_indexes) > 1:
+        print(f"Equality : ", end='')
+        for i in max_votes_indexes:
+            print(f"({candidates[i]})", end='')
+        return print("\n")
+    print(f"Winner : {candidates[max_votes_indexes[0]]}")
+    return print("\n")
+
+
+def add_vote():
     while True:
         _id = input("Please enter your id: ")
         try:
@@ -30,6 +50,10 @@ def add_vote() -> Voter:
         except ValueError:
             print("That's not an id!\n")
     print("")
+
+    for voter in votes:
+        if voter.id == id:
+            return -1
 
     while True:
         # Print candidates and get the number of candidate
@@ -67,13 +91,11 @@ def add_vote() -> Voter:
 
 def compute_votes():
     if len(votes) == 0:
-        return "No votes to compute\n"
+        return -1
     result = heaan.Ciphertext(context)
     result.log_slots = log_sots
     for v in range(len(votes)):
         eval.add(result, votes[v].ballot, result)
-    # if len(votes) - 1 == 0:
-    #    result = votes[0].ballot
     return result
 
 
@@ -104,11 +126,15 @@ while True:
     menu = input("1. Vote\n2. Results\n3. Exit\nPlease select one action: ")
     menu = int(menu)
     if menu == 1:
-        votes.append(add_vote())
-        print("Vote added !\n")
+        vote = add_vote()
+        if vote == -1:
+            print("You have already voted.\n")
+        else:
+            votes.append(vote)
+            print("Vote added !\n")
         continue
     if menu == 2:
-        print(compute_votes())
+        print_winner(compute_votes())
         continue
     if menu == 3:
         exit()
